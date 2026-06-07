@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from "react";
 
-export default function BharatDebtSolutionsWebsite() {
+export default function App() {
   const [loan, setLoan] = useState(1000000);
   const [slide, setSlide] = useState(0);
   const [openFaq, setOpenFaq] = useState(null);
 
+  const [form, setForm] = useState({
+    name: "",
+    mobile: "",
+    city: "",
+    amount: "",
+    problem: "",
+    message: ""
+  });
+
   const payable = Math.round(loan * 0.3);
   const savings = loan - payable;
+
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbxhKp0IdowJqrHZ9lIxoikgkJ0ycPvBjIcuoiB6FLjwClmUVc15cl9dhQSRmiqoLaoj/exec";
 
   const images = [
     "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1800&q=80",
@@ -19,12 +31,37 @@ export default function BharatDebtSolutionsWebsite() {
     return () => clearInterval(t);
   }, []);
 
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify(form)
+    });
+
+    alert("Details submitted successfully!");
+
+    setForm({
+      name: "",
+      mobile: "",
+      city: "",
+      amount: "",
+      problem: "",
+      message: ""
+    });
+  };
+
   const services = [
     ["☎", "Debt Harassment Relief", "End recovery calls, threats, abuse and unwanted visits."],
     ["🤝", "Debt Settlement Services", "Reduce total outstanding through structured settlement support."],
     ["⚖", "Legal Support", "Guidance on notices, documentation, complaints and rights."],
-    ["👤", "Counselling & Planning", "Personalised financial counselling and debt management plans."],
-    ["🛡", "Privacy Protection", "Protect your family, workplace and personal privacy."]
+    ["👤", "Counselling & Planning", "Personalised financial counselling and debt management plans."]
   ];
 
   const faqs = [
@@ -65,7 +102,7 @@ export default function BharatDebtSolutionsWebsite() {
         .title{text-align:center;font-size:32px;margin:0 0 12px}
         .sub{text-align:center;color:#4d5d75;margin:0 auto 30px;max-width:760px;line-height:1.7}
         .grid{display:grid;gap:20px}
-        .services{grid-template-columns:repeat(5,1fr)}
+        .services{grid-template-columns:repeat(4,1fr)}
         .card{background:#fff;border:1px solid #dce7f5;border-radius:12px;padding:26px;box-shadow:0 10px 30px rgba(16,24,40,.04)}
         .service{text-align:center;min-height:230px;display:flex;flex-direction:column;align-items:center}
         .icon{width:70px;height:70px;border-radius:50%;background:#eef5ff;color:#075ee8;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:18px}
@@ -86,8 +123,6 @@ export default function BharatDebtSolutionsWebsite() {
         .step{text-align:center}
         .stepNum{font-size:52px;color:#e9edf4;font-weight:900;margin-bottom:-12px}
         .stepIcon{width:72px;height:72px;border-radius:50%;background:#075ee8;color:white;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px}
-        .step h3{margin:0 0 10px}
-        .step p{color:#34435c;line-height:1.6;margin:0}
         .faqgrid{grid-template-columns:1fr 1fr;max-width:1100px;margin:auto}
         .faq{border:1px solid #dce7f5;border-radius:8px;padding:16px 22px;background:white;cursor:pointer}
         .faqTop{display:flex;justify-content:space-between;align-items:center;color:#172b4d}
@@ -176,10 +211,6 @@ export default function BharatDebtSolutionsWebsite() {
               <h3>Total Outstanding Amount</h3>
               <input value={`₹ ${loan.toLocaleString("en-IN")}`} readOnly />
               <input type="range" min="50000" max="5000000" value={loan} onChange={(e) => setLoan(Number(e.target.value))} />
-              <div style={{ display: "flex", justifyContent: "space-between", color: "#34435c", fontSize: 14 }}>
-                <span>₹ 50,000</span>
-                <span>₹ 50,00,000</span>
-              </div>
             </div>
 
             <div className="result green">
@@ -243,29 +274,34 @@ export default function BharatDebtSolutionsWebsite() {
       </section>
 
       <section className="section contact" id="contact">
-        <div className="card">
+        <form className="card" onSubmit={handleSubmit}>
           <h2 style={{ marginTop: 0 }}>Book Free Consultation</h2>
-          <input placeholder="Full Name" />
-          <input placeholder="Mobile Number" />
-          <input placeholder="City" />
-          <input placeholder="Total Outstanding Amount" />
-          <select>
-            <option>Select Problem</option>
+
+          <input name="name" value={form.name} onChange={handleChange} placeholder="Full Name" required />
+          <input name="mobile" value={form.mobile} onChange={handleChange} placeholder="Mobile Number" required />
+          <input name="city" value={form.city} onChange={handleChange} placeholder="City" />
+          <input name="amount" value={form.amount} onChange={handleChange} placeholder="Total Outstanding Amount" />
+
+          <select name="problem" value={form.problem} onChange={handleChange} required>
+            <option value="">Select Problem</option>
             <option>Recovery Calls</option>
             <option>Credit Card Settlement</option>
             <option>Personal Loan Settlement</option>
             <option>Multiple Loan Burden</option>
           </select>
-          <textarea placeholder="Briefly explain your issue" style={{ height: 110 }} />
-          <a
-  href="https://wa.me/918826704883?text=Hello%20Bharat%20Debt%20Solutions"
-  target="_blank"
->
-  <button className="btn" style={{ width: "100%" }}>
-    Submit Details
-  </button>
-</a>
-        </div>
+
+          <textarea
+            name="message"
+            value={form.message}
+            onChange={handleChange}
+            placeholder="Briefly explain your issue"
+            style={{ height: 110 }}
+          />
+
+          <button type="submit" className="btn" style={{ width: "100%" }}>
+            Submit Details
+          </button>
+        </form>
       </section>
 
       <footer>
